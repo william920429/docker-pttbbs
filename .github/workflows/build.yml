@@ -57,6 +57,7 @@ jobs:
             DEBIAN_VERSION=${{ env.DEBIAN_VERSION }}
 
   cleanup:
+    needs: image-build
     runs-on: ubuntu-latest
     permissions:
       packages: write
