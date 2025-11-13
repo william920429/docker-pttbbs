@@ -1,2 +1,8 @@
-bbs
-PttChrome
+/volumes/
+/backup/
+/.env
+/docker-compose.yaml
+/docker-compose.yml
+/compose.yaml
+/compose.yml
+/note.txt
