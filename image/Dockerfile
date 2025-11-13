@@ -1,5 +1,8 @@
+ARG NODE_MAJOR=lts
+ARG DEBIAN_VERSION=latest
+
 # Build PttChrome
-FROM node:24 AS pttchrome
+FROM node:${NODE_MAJOR} AS pttchrome
 RUN set -eux; \
     cd /usr/src; \
     curl -fsSL -o PttChrome-dev.zip https://github.com/robertabcd/PttChrome/archive/refs/heads/dev.zip; \
@@ -13,10 +16,10 @@ RUN set -eux; \
     yarn cache clean --all;
 
 # Already built PttBBS binary
-FROM ghcr.io/bbsdocker/imageptt:bookworm AS pttbbs
+FROM ghcr.io/bbsdocker/imageptt:${DEBIAN_VERSION} AS pttbbs
 
 # Main Image
-FROM openresty/openresty:bookworm
+FROM openresty/openresty:${DEBIAN_VERSION}
 # Install Dependency
 RUN set -eux; \
     . /etc/os-release; \
@@ -24,7 +27,7 @@ RUN set -eux; \
     useradd -m -g bbs -s /bin/bash --uid 9999 bbs; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-        "libevent-2.1-7$(if [ $DEBIAN_VERSION = trixie ];then echo "t64";fi)" \
+        "libevent-2.1-7$(if [ $VERSION_ID -ge 13 ];then echo t64;fi)" \
         supervisor \
         curl \
         wget \

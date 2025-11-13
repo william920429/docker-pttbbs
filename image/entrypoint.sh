@@ -14,7 +14,7 @@ if [ "$1" == "/usr/bin/supervisord" ] && [ "$EUID" -eq "0" ]; then
             < /usr/local/openresty/nginx/html/assets/${JSNAME}.template \
             > /usr/local/openresty/nginx/html/assets/${JSNAME}
 
-        envsubst '${PTTCHROME_ORIGIN},${BBS_LOGIND_ADDR},${BBS_LOGIND_PORT}' \
+        envsubst '${PTTCHROME_ORIGIN}' \
             < /usr/local/openresty/nginx/conf/nginx.conf.template \
             > /usr/local/openresty/nginx/conf/nginx.conf
     
