@@ -1,0 +1,13 @@
+services:
+  pttbbs:
+    image: ghcr.io/william920429/pttbbs:latest
+    container_name: pttbbs
+    restart: unless-stopped
+    ports:
+      - 3001:80
+    volumes:
+      - data:/home/bbs
+    env_file: .env
+
+volumes:
+  data:
