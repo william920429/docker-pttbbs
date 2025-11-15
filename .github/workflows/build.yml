@@ -6,13 +6,14 @@ on:
       - master
     paths:
       - "image/**"
+      - ".github/workflows/**"
   schedule:
-    - cron: "30 18 * * 0,4" # 2 hours after imageptt update
+    - cron: "30 18 * * 0,4"
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.actor }}/pttbbs
-  NODE_MAJOR: "24"
+  IMAGE_NAME: pttbbs
+  NODE_VERSION: "24"
   DEBIAN_VERSION: "bookworm"
 
 jobs:
@@ -49,11 +50,11 @@ jobs:
           cache-to: type=gha,mode=max
           context: ./image
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEBIAN_VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DEBIAN_VERSION }}-${{ steps.date.outputs.date }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ env.DEBIAN_VERSION }}
+            ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ env.DEBIAN_VERSION }}-${{ steps.date.outputs.date }}
+            ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:latest
           build-args: |
-            NODE_MAJOR=${{ env.NODE_MAJOR }}
+            NODE_VERSION=${{ env.NODE_VERSION }}
             DEBIAN_VERSION=${{ env.DEBIAN_VERSION }}
 
   cleanup:
@@ -62,10 +63,10 @@ jobs:
     permissions:
       packages: write
     steps:
-      - name: clean pttbbs image
+      - name: clean ${{ env.IMAGE_NAME }} image
         uses: dataaxiom/ghcr-cleanup-action@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          package: pttbbs
+          package: ${{ env.IMAGE_NAME }}
           delete-untagged: true
           keep-n-tagged: 5

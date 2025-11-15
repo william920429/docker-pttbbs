@@ -21,13 +21,15 @@ if [ "$1" == "/usr/bin/supervisord" ] && [ "$EUID" -eq "0" ]; then
         touch "/config-created"
     fi
 
-    if [ -z "$(ls "/home/bbs")" ]; then
-        cp -r /home/template/. /home/bbs/
-        chown -R bbs:bbs /home/bbs/
-        ln -srnf /home/bin /home/bbs/bin
+    if [ -z "$(ls -A "/home/bbs")" ]; then
+        cp -r /etc/skel/. /home/bbs
+        cp -r /home/pttbbs/etc /home/bbs/etc
+        ln -srnf /home/pttbbs/bin /home/bbs/bin
+        chown --no-dereference -R bbs:bbs /home/bbs/
+        su bbs -s /bin/sh -c "/home/pttbbs/bin/initbbs -DoIt"
     fi
 
-    su bbs -s /bin/sh -c "/home/bin/shmctl init"
+    su bbs -s /bin/sh -c "/home/pttbbs/bin/shmctl init"
 
 fi
 

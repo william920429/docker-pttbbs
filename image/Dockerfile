@@ -1,30 +1,50 @@
-ARG NODE_MAJOR=lts
-ARG DEBIAN_VERSION=latest
+ARG NODE_VERSION="lts"
+ARG DEBIAN_VERSION="latest"
 
 # Build PttChrome
-FROM node:${NODE_MAJOR} AS pttchrome
+FROM node:${NODE_VERSION}-slim AS pttchrome
+ADD https://github.com/robertabcd/PttChrome.git#dev /usr/src/PttChrome
 RUN set -eux; \
-    cd /usr/src; \
-    curl -fsSL -o PttChrome-dev.zip https://github.com/robertabcd/PttChrome/archive/refs/heads/dev.zip; \
-    unzip PttChrome-dev.zip; \
-    cd PttChrome-dev; \
+    cd /usr/src/PttChrome; \
     yarn upgrade; \
     NODE_ENV=production yarn build; \
     mv ./dist /usr/src/static; \
     cd /usr/src; \
-    rm -rf ./PttChrome-dev; \
+    rm -rf ./PttChrome; \
     yarn cache clean --all;
 
-# Already built PttBBS binary
-FROM ghcr.io/bbsdocker/imageptt:${DEBIAN_VERSION} AS pttbbs
+# Build PttBBS
+FROM openresty/openresty:${DEBIAN_VERSION} AS pttbbs
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+    bmake \
+    gcc \
+    g++ \
+    python3  \
+    python-is-python3 \
+    libevent-dev \
+    pkg-config \
+    git \
+    ; \
+    rm -rf /var/lib/apt/lists/*;
+
+ADD --keep-git-dir=true https://github.com/ptt/pttbbs.git#master /home/src
+COPY pttbbs.conf /home/src/
+RUN set -eux; \
+    mkdir /home/bbs; \
+    export BBSHOME=/home/bbs; \
+    pmake all install -C /home/src; \
+    pmake all install -C /home/src/daemon/logind; \
+    pmake     install -C /home/src/sample; \
+    mv /home/src/daemon/wsproxy /home/bbs/wsproxy; \
+    rm -rf /home/src;
+COPY bindports.conf /home/bbs/etc/bindports.conf
 
 # Main Image
 FROM openresty/openresty:${DEBIAN_VERSION}
-# Install Dependency
 RUN set -eux; \
     . /etc/os-release; \
-    groupadd --gid 99 bbs; \
-    useradd -m -g bbs -s /bin/bash --uid 9999 bbs; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         "libevent-2.1-7$(if [ $VERSION_ID -ge 13 ];then echo t64;fi)" \
@@ -62,21 +82,21 @@ RUN set -eux; \
         /usr/local/openresty/nginx/conf/nginx.conf;
 
 # Install PttBBS
-COPY --from=pttbbs /home/bbs /home/template
+COPY --from=pttbbs /home/bbs /home/pttbbs
 RUN set -eux; \
-    mv /home/template/bin /home/; \
-    mv /home/template/wsproxy /home/;
+    groupadd --gid 99 bbs; \
+    useradd -m -g bbs -s /bin/bash -u 9999 -k /nonexistence bbs;
 
 COPY --chmod=755 entrypoint.sh /
 COPY supervisord.conf crontab /
 COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf.template
 
 ENV PTTCHROME_PAGE_TITLE="PttChrome"
-ENV PTTCHROME_SITE="wsstelnet://ws.ptt.cc/bbs"
-ENV PTTCHROME_ORIGIN="https://www.ptt.cc"
+ENV PTTCHROME_SITE="wstelnet://127.0.0.1:3000/bbs"
+ENV PTTCHROME_ORIGIN="http://127.0.0.1:3000"
 
 STOPSIGNAL SIGTERM
-EXPOSE 80
+EXPOSE 3000
 VOLUME /home/bbs
 
 ENTRYPOINT ["/entrypoint.sh"]
