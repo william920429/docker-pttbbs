@@ -13,6 +13,7 @@ cp ./example/docker-compose.yml ./
 ```
 ### Configure environment variable
  - `TZ` Timezone
+ - `PTTCHROME_PORT` PttChrome Port to expose
  - `PTTCHROME_PAGE_TITLE` PttChrome page title
  - `PTTCHROME_SITE` BBS websocket host to connect.
    - `wstelnet://YOUR-SERVER-URL/bbs` for unencrypted connection
@@ -22,14 +23,6 @@ cp ./example/docker-compose.yml ./
    - `https://YOUR-SERVER-URL` for encryption over TLS
 
 It is recommended to use behind a reverse proxy with HTTPS.
-
-### Configure docker-compose.yml
-```yml
-pttbbs:
-  ports:
-    - 3000:3000
-```
-You can change the port number to expose. e.g. `48763:3000` for exposing to port `48763`
 
 ### Run
 ```shell

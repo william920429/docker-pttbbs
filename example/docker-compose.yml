@@ -4,7 +4,7 @@ services:
     container_name: pttbbs
     restart: unless-stopped
     ports:
-      - 3000:3000
+      - ${PTTCHROME_PORT}:3000
     volumes:
       - data:/home/bbs
     env_file: .env
