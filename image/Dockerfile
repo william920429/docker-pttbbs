@@ -18,14 +18,14 @@ FROM openresty/openresty:${DEBIAN_VERSION} AS pttbbs
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
-    bmake \
-    gcc \
-    g++ \
-    python3  \
-    python-is-python3 \
-    libevent-dev \
-    pkg-config \
-    git \
+        bmake \
+        gcc \
+        g++ \
+        python3  \
+        python-is-python3 \
+        libevent-dev \
+        pkg-config \
+        git \
     ; \
     rm -rf /var/lib/apt/lists/*;
 
@@ -72,14 +72,14 @@ RUN set -eux; \
     cd /usr/local/openresty/nginx/html; \
     JSNAME="$(basename ./assets/pttchrome.*.js)"; \
     sed 's@PttChrome@${PTTCHROME_PAGE_TITLE}@' \
-        ./index.html \
+        < ./index.html \
         > ./index.html.template; \
     sed 's@wsstelnet://ws.ptt.cc/bbs@${PTTCHROME_SITE}@' \
-        ./assets/${JSNAME} \
+        < ./assets/${JSNAME} \
         > ./assets/${JSNAME}.template; \
-    rm ./index.html \
-        ./assets/${JSNAME} \
-        /usr/local/openresty/nginx/conf/nginx.conf;
+    : > ./index.html; \
+    : > ./assets/${JSNAME}; \
+    : > /usr/local/openresty/nginx/conf/nginx.conf;
 
 # Install PttBBS
 COPY --from=pttbbs /home/bbs /home/pttbbs
