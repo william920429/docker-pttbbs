@@ -1,17 +1,4 @@
-ARG NODE_VERSION="lts"
 ARG DEBIAN_VERSION="latest"
-
-# Build PttChrome
-FROM node:${NODE_VERSION}-slim AS pttchrome
-ADD https://github.com/robertabcd/PttChrome.git#dev /usr/src/PttChrome
-RUN set -eux; \
-    cd /usr/src/PttChrome; \
-    yarn upgrade; \
-    NODE_ENV=production yarn build; \
-    mv ./dist /usr/src/static; \
-    cd /usr/src; \
-    rm -rf ./PttChrome; \
-    yarn cache clean --all;
 
 # Build PttBBS
 FROM openresty/openresty:${DEBIAN_VERSION} AS pttbbs
@@ -56,18 +43,18 @@ RUN set -eux; \
 
 # Install supercronic
 # Latest releases available at https://github.com/aptible/supercronic/releases
-ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.39/supercronic-linux-amd64 \
-    SUPERCRONIC_SHA1SUM=c98bbf82c5f648aaac8708c182cc83046fe48423 \
+ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.41/supercronic-linux-amd64 \
+    SUPERCRONIC_SHA1SUM=f70ad28d0d739a96dc9e2087ae370c257e79b8d7 \
     SUPERCRONIC=supercronic-linux-amd64
-RUN set -eux; \
-    curl -fsSLO "$SUPERCRONIC_URL"; \
-    echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c -; \
-    chmod +x "$SUPERCRONIC"; \
-    mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}"; \
-    ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic;
+
+RUN curl -fsSLO "$SUPERCRONIC_URL" \
+ && echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c - \
+ && chmod +x "$SUPERCRONIC" \
+ && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
+ && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
 
 # Install PttChrome
-COPY --from=pttchrome /usr/src/static/. /usr/local/openresty/nginx/html/
+COPY ./PttChrome/. /usr/local/openresty/nginx/html/
 RUN set -eux; \
     cd /usr/local/openresty/nginx/html; \
     JSNAME="$(basename ./assets/pttchrome.*.js)"; \

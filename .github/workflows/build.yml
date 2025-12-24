@@ -6,14 +6,13 @@ on:
       - master
     paths:
       - "image/**"
-      - ".github/workflows/**"
+      - ".github/workflows/build.yml"
   schedule:
     - cron: "30 18 * * 0,4"
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: pttbbs
-  NODE_VERSION: "24"
   DEBIAN_VERSION: "bookworm"
 
 jobs:
