@@ -53,7 +53,6 @@ jobs:
             ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ env.DEBIAN_VERSION }}-${{ steps.date.outputs.date }}
             ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:latest
           build-args: |
-            NODE_VERSION=${{ env.NODE_VERSION }}
             DEBIAN_VERSION=${{ env.DEBIAN_VERSION }}
 
   cleanup:
