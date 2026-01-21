@@ -79,7 +79,7 @@ COPY supervisord.conf crontab /
 COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf.template
 
 ENV PTTCHROME_PAGE_TITLE="PttChrome"
-ENV PTTCHROME_SITE="wstelnet://127.0.0.1:3000/bbs"
+ENV PTTCHROME_SITE="wstelnet://127.0.0.1:3000/ws"
 ENV PTTCHROME_ORIGIN="http://127.0.0.1:3000"
 
 STOPSIGNAL SIGTERM
