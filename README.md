@@ -13,7 +13,6 @@ cp ./example/docker-compose.yml ./
 ```
 ### Configure environment variable
  - `TZ` Timezone
- - `PTTCHROME_PORT` PttChrome Port to expose
  - `PTTCHROME_PAGE_TITLE` PttChrome page title
  - `PTTCHROME_SITE` BBS websocket host to connect.
    - `wstelnet://YOUR-SERVER-URL/ws` for unencrypted connection
@@ -28,6 +27,7 @@ It is recommended to use behind a reverse proxy with HTTPS.
 ```shell
 docker compose up -d
 ```
+And you can view it at `http://localhost:21900`
 
 ## Reference
 1. PttBBS <https://github.com/ptt/pttbbs>

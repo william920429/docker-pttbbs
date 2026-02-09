@@ -19,7 +19,7 @@ RUN set -eux; \
 
 COPY --chmod=755 entrypoint.sh /
 COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf.template
-COPY wsproxy.lua /usr/local/openresty/nginx/conf/
+COPY wsproxy.lua /usr/local/openresty/nginx/
 
 ENV PTTCHROME_PAGE_TITLE="PttChrome" \
     PTTCHROME_SITE="wstelnet://localhost:21900/ws" \
