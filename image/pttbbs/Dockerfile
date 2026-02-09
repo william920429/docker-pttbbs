@@ -61,6 +61,7 @@ COPY --link --chmod=755 entrypoint.sh /
 COPY --link crontab bindports.conf /
 
 VOLUME /home/bbs
+WORKDIR /home/bbs
 
 EXPOSE 23
 ENTRYPOINT ["/entrypoint.sh"]
