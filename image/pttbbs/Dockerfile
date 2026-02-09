@@ -26,7 +26,7 @@ RUN set -eux; \
     pmake all install -C /home/src; \
     pmake all install -C /home/src/daemon/logind; \
     pmake     install -C /home/src/sample; \
-    ln -sr /home/bbs/bin/bbsrf /home/bbs/bin/utf8
+    ln -sr /home/bbs/bin/bbsrf /home/bbs/bin/utf8; \
     rm -rf /home/src;
 COPY bindports.conf /home/bbs/etc/bindports.conf
 
