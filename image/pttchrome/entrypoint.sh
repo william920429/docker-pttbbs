@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 set -eu
 
-if [ "$1" == "/usr/bin/supervisord" ] && [ "$EUID" -eq "0" ]; then
-
+if [ "$1" == "openresty" ] && [ "$EUID" -eq "0" ]; then
     if [ ! -f "/config-created" ]; then
-
         envsubst '${PTTCHROME_PAGE_TITLE}' \
             < /usr/local/openresty/nginx/html/index.html.template \
             > /usr/local/openresty/nginx/html/index.html
@@ -14,23 +12,13 @@ if [ "$1" == "/usr/bin/supervisord" ] && [ "$EUID" -eq "0" ]; then
             < /usr/local/openresty/nginx/html/assets/${JSNAME}.template \
             > /usr/local/openresty/nginx/html/assets/${JSNAME}
 
-        envsubst '${PTTCHROME_ORIGIN}' \
+        envsubst '${PTTCHROME_ORIGIN} ${LOGIND_ADDR} ${LOGIND_PORT}' \
             < /usr/local/openresty/nginx/conf/nginx.conf.template \
             > /usr/local/openresty/nginx/conf/nginx.conf
-    
         touch "/config-created"
     fi
-
-    if [ -z "$(ls -A "/home/bbs")" ]; then
-        cp -r /etc/skel/. /home/bbs
-        cp -r /home/pttbbs/etc /home/bbs/etc
-        ln -srnf /home/pttbbs/bin /home/bbs/bin
-        chown --no-dereference -R bbs:bbs /home/bbs/
-        su bbs -s /bin/sh -c "/home/pttbbs/bin/initbbs -DoIt"
-    fi
-
-    su bbs -s /bin/sh -c "/home/pttbbs/bin/shmctl init"
-
+    echo Starting: "$@"
+    exec "$@"
 fi
 
 exec "$@"

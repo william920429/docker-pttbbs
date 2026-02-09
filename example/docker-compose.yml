@@ -1,13 +1,35 @@
 services:
-  pttbbs:
+  app:
     image: ghcr.io/william920429/pttbbs:latest
-    container_name: pttbbs
+    container_name: pttbbs-app
     restart: unless-stopped
-    ports:
-      - ${PTTCHROME_PORT}:3000
+    ipc: shareable
+    init: true
     volumes:
       - data:/home/bbs
+    environment:
+      - TZ
+  
+  cron:
+    image: ghcr.io/william920429/pttbbs:latest
+    container_name: pttbbs-cron
+    restart: unless-stopped
+    ipc: service:app
+    command: supercronic -quiet /crontab
+    volumes:
+      - data:/home/bbs
+    environment:
+      - TZ
+  
+  web:
+    image: ghcr.io/william920429/pttchrome:latest
+    container_name: pttbbs-web
+    ports:
+      - 21900:80
     env_file: .env
+    environment:
+      - LOGIND_ADDR=app
+      - LOGIND_PORT=23
 
 volumes:
   data:
