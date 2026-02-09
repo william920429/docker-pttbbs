@@ -10,7 +10,7 @@ exec_as(){
 
 setup_bbs_home(){
     if [ -z "$(ls -A "/home/bbs")" ]; then
-        cp -r /usr/local/pttbbs/etc /home/bbs/etc
+        cp -a /usr/local/pttbbs/etc /home/bbs/etc
         ln -srnf /usr/local/pttbbs/bin /home/bbs/bin
         ln -srnf /dev/shm /home/bbs/run
         chown --no-dereference -R bbs:bbs /home/bbs/

@@ -74,16 +74,15 @@ end
 
 local function connect_mbbsd()
     local addr = ngx.var.bbs_logind_addr
-    local port = tonumber(ngx.var.bbs_logind_port)
     if not addr then
         ngx.log(ngx.ERR, "bbs_logind_addr not set")
         return
     end
 
     local mbbsd = ngx.socket.stream()
-    local ok, err = mbbsd:connect(addr, port)
+    local ok, err = mbbsd:connect(addr)
     if not ok then
-        ngx.log(ngx.ERR, "failed to connect to mbbsd: ", addr, ":", port, " err: ", err)
+        ngx.log(ngx.ERR, "failed to connect to mbbsd: ", addr, " err: ", err)
         return
     end
 

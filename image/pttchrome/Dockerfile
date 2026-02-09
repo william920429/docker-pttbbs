@@ -3,9 +3,9 @@ ARG DEBIAN_VERSION="bookworm"
 FROM openresty/openresty:${DEBIAN_VERSION}
 
 # Install PttChrome
-COPY ./PttChrome/. /usr/local/openresty/nginx/html/
+COPY --link ./PttChrome /usr/local/openresty/nginx/PttChrome
 RUN set -eux; \
-    cd /usr/local/openresty/nginx/html; \
+    cd /usr/local/openresty/nginx/PttChrome; \
     JSNAME="$(basename ./assets/pttchrome.*.js)"; \
     sed 's@PttChrome@${PTTCHROME_PAGE_TITLE}@' \
         < ./index.html \
@@ -17,15 +17,13 @@ RUN set -eux; \
     : > ./assets/${JSNAME}; \
     : > /usr/local/openresty/nginx/conf/nginx.conf;
 
-COPY --chmod=755 entrypoint.sh /
-COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf.template
-COPY wsproxy.lua /usr/local/openresty/nginx/
+COPY --link --chmod=755 entrypoint.sh /
+COPY --link nginx.conf.template /usr/local/openresty/nginx/conf/
+COPY --link wsproxy.lua /usr/local/openresty/nginx/
 
 ENV PTTCHROME_PAGE_TITLE="PttChrome" \
     PTTCHROME_SITE="wstelnet://localhost:21900/ws" \
-    PTTCHROME_ORIGIN="http://localhost:21900" \
-    LOGIND_ADDR="app" \
-    LOGIND_PORT="23"
+    PTTCHROME_ORIGIN="http://localhost:21900"
 
 EXPOSE 80
 ENTRYPOINT ["/entrypoint.sh"]

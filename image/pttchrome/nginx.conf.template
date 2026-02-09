@@ -32,8 +32,6 @@ http {
 
     #gzip  on;
 
-    resolver 127.0.0.11;
-
     map $http_origin $bbs_origin_checked {
         "${PTTCHROME_ORIGIN}" 1;
         "~^app://" 1;
@@ -67,7 +65,7 @@ http {
         real_ip_recursive on;
 
         location / {
-            root   /usr/local/openresty/nginx/html;
+            root   /usr/local/openresty/nginx/PttChrome;
             index  index.html;
         }
 
@@ -83,8 +81,7 @@ http {
             set $bbs_secure $is_secure;
 
             # Required: The logind address.
-            set $bbs_logind_addr "${LOGIND_ADDR}";
-            set $bbs_logind_port "${LOGIND_PORT}";
+            set $bbs_logind_addr "unix:/dev/shm/logind.connfwd.sock";
 
             content_by_lua_file wsproxy.lua;
         }

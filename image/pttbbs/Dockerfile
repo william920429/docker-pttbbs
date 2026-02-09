@@ -18,17 +18,17 @@ RUN set -eux; \
     ; \
     rm -rf /var/lib/apt/lists/*;
 
-ADD --keep-git-dir=true https://github.com/ptt/pttbbs.git#master /home/src
-COPY pttbbs.conf /home/src/
+ADD  --link --keep-git-dir=true https://github.com/ptt/pttbbs.git#master /usr/local/src/pttbbs
+COPY --link pttbbs.conf /usr/local/src/pttbbs/
 RUN set -eux; \
     mkdir /home/bbs; \
     export BBSHOME=/home/bbs; \
-    pmake all install -C /home/src; \
-    pmake all install -C /home/src/daemon/logind; \
-    pmake     install -C /home/src/sample; \
+    pmake all install -C /usr/local/src/pttbbs; \
+    pmake all install -C /usr/local/src/pttbbs/daemon/logind; \
+    pmake     install -C /usr/local/src/pttbbs/sample; \
     ln -sr /home/bbs/bin/bbsrf /home/bbs/bin/utf8; \
-    rm -rf /home/src;
-COPY bindports.conf /home/bbs/etc/bindports.conf
+    ln -sr /bindports.conf /home/bbs/etc/bindports.conf; \
+    rm -rf /usr/local/src/pttbbs;
 
 # Main Image
 FROM debian:${DEBIAN_VERSION}-slim
@@ -49,17 +49,19 @@ ADD --chmod=755 \
     /usr/local/bin/supercronic
 
 # Install PttBBS
-COPY --from=build /home/bbs /usr/local/pttbbs
+COPY --link --from=build /home/bbs /usr/local/pttbbs
 RUN set -eux; \
-    groupadd --gid 99 bbs; \
-    useradd -m -g bbs -u 9999 -d /home/bbs -s /usr/sbin/nologin -k /nonexistence bbs;
+    groupadd --non-unique --gid 99 bbs; \
+    useradd  --non-unique --gid 99 --uid 9999 \
+             --home-dir /home/bbs --skel /nonexistence --create-home \
+             --shell /usr/sbin/nologin bbs; \
+    rm -f /etc/group- /etc/passwd- /etc/.pwd.lock;
 
-COPY --chmod=755 entrypoint.sh /
-COPY crontab /
+COPY --link --chmod=755 entrypoint.sh /
+COPY --link crontab bindports.conf /
 
-STOPSIGNAL SIGTERM
-EXPOSE 23
 VOLUME /home/bbs
 
+EXPOSE 23
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/local/pttbbs/bin/logind", "-D"]

@@ -24,12 +24,11 @@ services:
   web:
     image: ghcr.io/william920429/pttchrome:latest
     container_name: pttbbs-web
+    restart: unless-stopped
+    ipc: service:app
     ports:
       - 21900:80
     env_file: .env
-    environment:
-      - LOGIND_ADDR=app
-      - LOGIND_PORT=23
 
 volumes:
   data:
